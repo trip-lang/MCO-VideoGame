@@ -1,4 +1,3 @@
-
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -10,28 +9,29 @@ import {
   View,
 } from "react-native";
 
-import { deleteGame, getGames, toggleGame } from "../gameStore";
-
-type Game = {
-  id: string;
-  title: string;
-  rating: string;
-  completed: boolean;
-};
+import {
+  deleteGame,
+  getGames,
+  loadGames,
+  toggleGame,
+  type Game,
+} from "../gameStore";
 
 export default function CollectionScreen() {
   const [games, setGames] = useState<Game[]>([]);
 
   const loadCollection = async (): Promise<void> => {
     try {
-      const fetchedGames = await getGames();
+      await loadGames();
+
+      const fetchedGames = getGames();
+
       setGames(fetchedGames);
     } catch (error) {
       console.log("Error loading collection:", error);
     }
   };
 
-  // Runs whenever the screen gains focus
   useFocusEffect(
     useCallback(() => {
       loadCollection();
@@ -57,22 +57,29 @@ export default function CollectionScreen() {
   };
 
   const goToAddGame = (): void => {
-    router.navigate("/add-game");
+    router.push("/add-game");
   };
 
   const goHome = (): void => {
-    router.navigate("/");
+    router.replace("/");
   };
 
   const renderGame = ({ item }: { item: Game }) => {
     return (
       <View style={styles.gameCard}>
-        <Text style={styles.gameTitle}>🎮 {item.title}</Text>
-
-        <Text style={styles.gameInfo}>⭐ Rating: {item.rating}/5</Text>
+        <Text style={styles.gameTitle}>
+          🎮 {item.title}
+        </Text>
 
         <Text style={styles.gameInfo}>
-          📖 Story: {item.completed ? "Completed" : "Not Completed"}
+          ⭐ Rating: {item.rating}/5
+        </Text>
+
+        <Text style={styles.gameInfo}>
+          📖 Story:{" "}
+          {item.completed
+            ? "Completed"
+            : "Not Completed"}
         </Text>
 
         <View style={styles.buttonRow}>
@@ -81,7 +88,9 @@ export default function CollectionScreen() {
             onPress={() => completeGame(item.id)}
           >
             <Text style={styles.buttonText}>
-              {item.completed ? "Mark Unfinished" : "Complete"}
+              {item.completed
+                ? "Mark Unfinished"
+                : "Complete"}
             </Text>
           </TouchableOpacity>
 
@@ -89,7 +98,9 @@ export default function CollectionScreen() {
             style={styles.deleteButton}
             onPress={() => removeGame(item.id)}
           >
-            <Text style={styles.buttonText}>Delete</Text>
+            <Text style={styles.buttonText}>
+              Delete
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -99,11 +110,15 @@ export default function CollectionScreen() {
   return (
     <SafeAreaView style={styles.app}>
       <View style={styles.container}>
-        <Text style={styles.heading}>📚 My Collection</Text>
+        <Text style={styles.heading}>
+          📚 My Collection
+        </Text>
 
         {games.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.empty}>No games added yet.</Text>
+            <Text style={styles.empty}>
+              No games added yet.
+            </Text>
           </View>
         ) : (
           <FlatList
@@ -115,12 +130,22 @@ export default function CollectionScreen() {
           />
         )}
 
-        <TouchableOpacity style={styles.addButton} onPress={goToAddGame}>
-          <Text style={styles.buttonText}>+ Add Another Game</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={goToAddGame}
+        >
+          <Text style={styles.buttonText}>
+            + Add Another Game
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.homeButton} onPress={goHome}>
-          <Text style={styles.homeText}>← Home</Text>
+        <TouchableOpacity
+          style={styles.homeButton}
+          onPress={goHome}
+        >
+          <Text style={styles.homeText}>
+            ← Home
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
